@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>D92A Hotmelt Usage — HMI</title>
+<style>
+  :root{
+    --bg:#0F1419; --panel:#1B2330; --panel2:#232E3F; --tile:#1E2A38; --head:#11202E;
+    --border:#2B6B82; --cyan:#22D3EE; --green:#34D399; --amber:#FBBF24; --red:#F87171;
+    --text:#E5E7EB; --muted:#8A97A8;
+    --mono:ui-monospace,"SF Mono","Consolas","Roboto Mono",monospace;
+    --sans:system-ui,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
+  body{padding:10px;display:flex;justify-content:center}
+  .app{width:100%;max-width:1080px}
+
+  /* ---- header ---- */
+  .titlebar{background:var(--head);border:1px solid var(--cyan);border-radius:12px;
+    padding:14px 16px;text-align:center;position:relative}
+  .titlebar h1{margin:0;color:var(--cyan);font-weight:800;letter-spacing:.04em;
+    font-size:clamp(20px,4.8vw,34px)}
+  .titlebar p{margin:4px 0 0;color:var(--muted);font-size:clamp(9px,2vw,12px);letter-spacing:.06em}
+  .live{color:var(--green)}
+  .bp{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:11px;
+    color:var(--cyan);background:#0b2630;border:1px solid var(--border);border-radius:20px;
+    padding:3px 10px;white-space:nowrap}
+
+  .section{background:var(--head);border:1px solid var(--border);border-radius:10px;
+    color:var(--cyan);font-weight:700;text-align:center;letter-spacing:.06em;
+    padding:8px;margin:12px 0 10px;font-size:clamp(11px,2.4vw,14px)}
+
+  /* ---- info cards: 2-up phone, 3-up tablet+ ---- */
+  .cards{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-top:12px}
+  .field label{display:block;color:var(--muted);font-size:10px;font-weight:700;
+    letter-spacing:.05em;margin:0 0 4px 2px;text-transform:uppercase}
+  .box{background:var(--panel);border:1px solid var(--border);border-radius:9px;
+    min-height:50px;display:flex;align-items:center;justify-content:center;padding:6px}
+  .box.accent{background:var(--panel2)}
+  select,input{width:100%;background:transparent;border:0;color:var(--amber);
+    font-family:var(--mono);font-weight:700;font-size:clamp(15px,3.4vw,19px);
+    text-align:center;outline:none}
+  select option{background:#0d141c;color:var(--text)}
+  .readout{font-family:var(--mono);font-weight:800;font-size:clamp(15px,3.4vw,19px)}
+  .readout.green{color:var(--green)} .readout.cyan{color:var(--cyan)}
+  .toggle{display:flex;width:100%;height:100%;gap:0}
+  .toggle button{flex:1;border:0;background:transparent;color:var(--muted);
+    font-family:var(--mono);font-weight:700;font-size:15px;cursor:pointer;border-radius:7px}
+  .toggle button.on{background:var(--amber);color:#1a1205}
+
+  /* ---- event tiles: 2-up phone, 3-up tablet+ ---- */
+  .tiles{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+  .tile{background:var(--tile);border:1px solid var(--border);border-radius:11px;
+    padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .tile .tag{color:var(--cyan);font-weight:700;font-size:clamp(10px,2.3vw,12px);
+    text-align:center;letter-spacing:.03em}
+  .counter{display:flex;align-items:center;gap:10px;width:100%;justify-content:center}
+  .counter button{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);
+    background:var(--panel2);color:var(--cyan);font-size:24px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1;flex:0 0 auto}
+  .counter button:active{transform:scale(.94)}
+  .counter button.minus{color:var(--red)}
+  .count{font-family:var(--mono);font-weight:800;color:#fff;
+    font-size:clamp(26px,7vw,38px);min-width:54px;text-align:center}
+  .sub{color:var(--amber);font-family:var(--mono);font-size:clamp(9px,2vw,12px)}
+
+  /* ---- total ---- */
+  .total{background:var(--head);border:1px solid var(--green);border-radius:12px;
+    margin-top:14px;overflow:hidden}
+  .total .cap{background:var(--head);color:var(--cyan);text-align:center;font-weight:700;
+    padding:8px;letter-spacing:.05em;font-size:clamp(11px,2.4vw,14px);border-bottom:1px solid #1d3a31}
+  .total .row{display:grid;grid-template-columns:1.6fr 1fr}
+  .total .g{background:#0B1F17;color:var(--green);font-family:var(--mono);font-weight:800;
+    text-align:center;padding:14px 6px;font-size:clamp(34px,9.5vw,62px);line-height:1}
+  .total .kg{background:var(--panel2);color:var(--cyan);font-family:var(--mono);font-weight:800;
+    display:flex;align-items:center;justify-content:center;font-size:clamp(18px,5vw,30px)}
+  @media (max-width:430px){ .total .row{grid-template-columns:1fr} .total .kg{padding:8px} }
+
+  /* ---- actions ---- */
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .btn{border:0;border-radius:12px;padding:16px;font-weight:800;font-size:clamp(14px,3.2vw,17px);
+    cursor:pointer;letter-spacing:.03em}
+  .btn:active{transform:translateY(1px)}
+  .save{background:var(--green);color:#06281c} .reset{background:var(--red);color:#3b0a0a}
+  .foot{color:var(--muted);font-size:clamp(9px,2vw,11px);text-align:center;margin:12px 4px 6px}
+
+  /* ---- session log ---- */
+  .log{margin-top:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .log h3{margin:0;background:var(--panel2);color:var(--cyan);font-size:12px;padding:8px 12px;letter-spacing:.05em}
+  .log .empty{color:var(--muted);padding:14px;text-align:center;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)}
+  th,td{padding:7px 8px;text-align:center;border-bottom:1px solid #20303f;white-space:nowrap}
+  th{color:var(--muted);font-weight:700;background:var(--panel)}
+  td{color:var(--text)}
+  .scroll{overflow-x:auto}
+
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);
+    background:var(--green);color:#06281c;font-weight:800;padding:12px 22px;border-radius:30px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:14px}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+
+  /* ---- responsive breakpoints: phone 2-up → tablet/desktop 3-up ---- */
+  @media (min-width:680px){
+    .cards{grid-template-columns:repeat(3,1fr)}
+    .tiles{grid-template-columns:repeat(3,1fr)}
+  }
+  @media (max-width:560px){
+    .bp{position:static;display:inline-block;margin:0 auto 10px}
+    .titlebar{padding-top:12px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="titlebar">
+    <div class="bp" id="bp">— px</div>
+    <h1>D92A &nbsp;HOTMELT USAGE</h1>
+    <p>HOTMELT CONSUMPTION MONITOR&nbsp; | &nbsp;MAIN ASSEMBLY — DOOR MIRROR&nbsp; | &nbsp;<span class="live">● LIVE</span></p>
+  </div>
+
+  <div class="cards">
+    <div class="field"><label>Operator</label>
+      <div class="box accent"><select id="operator">
+        <option>AHMAD</option><option>ROSLI</option><option>FAIZAL</option>
+        <option>SITI</option><option>KUMAR</option><option>WEI MING</option><option>NURUL</option>
+      </select></div></div>
+    <div class="field"><label>Date</label>
+      <div class="box"><input type="date" id="date"></div></div>
+    <div class="field"><label>Today's Prod Plan (pcs)</label>
+      <div class="box accent"><input type="number" id="plan" value="8000" min="0" inputmode="numeric"></div></div>
+    <div class="field"><label>Shift</label>
+      <div class="box accent"><select id="shift"><option>Shift A</option><option>Shift B</option><option>Shift C</option></select></div></div>
+    <div class="field"><label>Changeover?</label>
+      <div class="box"><div class="toggle" id="cover">
+        <button data-v="NO" class="on">NO</button><button data-v="YES">YES</button></div></div></div>
+    <div class="field"><label>Plan Hotmelt&nbsp; a = plan × 48g</label>
+      <div class="box"><span class="readout green" id="planG">0 g</span></div></div>
+  </div>
+
+  <div class="section">EVENT COUNTERS &nbsp;—&nbsp; TAP &nbsp;+&nbsp; TO COUNT</div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="total">
+    <div class="cap">TOTAL HOTMELT CONSUMPTION TODAY</div>
+    <div class="row"><div class="g" id="totalG">0 g</div><div class="kg" id="totalKg">0.0 kg</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn save" id="save">💾 SAVE → LOG</button>
+    <button class="btn reset" id="reset">↻ RESET</button>
+  </div>
+  <div class="foot">Demo prototype. Dalam app live Zul, SAVE akan POST ke Google Apps Script → simpan ke Google Sheets (sama pattern macam consumable tracker).</div>
+
+  <div class="log">
+    <h3>SESSION LOG (demo)</h3>
+    <div id="logBody"><div class="empty">Belum ada rekod. Tekan SAVE untuk tambah.</div></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const WEIGHTS = { plan:48, b:300, c:200, d:200, e:60, f:58, g:200 };
+const EVENTS = [
+  {k:'b', name:'INITIAL START'}, {k:'c', name:'AFTER BODY FITTING'}, {k:'d', name:'AFTER BREAK'},
+  {k:'e', name:'IDLING'}, {k:'f', name:'REPLACEMENT'}, {k:'g', name:'PURGING ONLY'},
+];
+const DEFAULTS = { b:1, c:1, d:1, e:0, f:0, g:0 };
+let counts = { ...DEFAULTS };
+let changeover = 'NO';
+let log = [];
+
+const $ = id => document.getElementById(id);
+$('date').valueAsDate = new Date();
+
+// build tiles
+$('tiles').innerHTML = EVENTS.map(ev => `
+  <div class="tile">
+    <div class="tag">${ev.k} · ${ev.name}</div>
+    <div class="counter">
+      <button class="minus" data-k="${ev.k}" data-d="-1" aria-label="kurang ${ev.k}">−</button>
+      <div class="count" id="cnt-${ev.k}">${counts[ev.k]}</div>
+      <button data-k="${ev.k}" data-d="1" aria-label="tambah ${ev.k}">+</button>
+    </div>
+    <div class="sub">× ${WEIGHTS[ev.k]} g = <span id="sub-${ev.k}">0 g</span></div>
+  </div>`).join('');
+
+function fmt(n){ return Math.round(n).toLocaleString('en-US'); }
+
+function render(){
+  const plan = +$('plan').value || 0;
+  const planG = plan * WEIGHTS.plan;
+  $('planG').textContent = fmt(planG) + ' g';
+  let total = planG;
+  EVENTS.forEach(ev => {
+    const sub = counts[ev.k] * WEIGHTS[ev.k];
+    total += sub;
+    $('cnt-'+ev.k).textContent = counts[ev.k];
+    $('sub-'+ev.k).textContent = fmt(sub) + ' g';
+  });
+  $('totalG').textContent = fmt(total) + ' g';
+  $('totalKg').textContent = (total/1000).toFixed(1) + ' kg';
+}
+
+document.querySelectorAll('.counter button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const k = btn.dataset.k, d = +btn.dataset.d;
+    counts[k] = Math.max(0, counts[k] + d);
+    render();
+  });
+});
+
+document.querySelectorAll('#cover button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#cover button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); changeover = b.dataset.v;
+  });
+});
+
+$('plan').addEventListener('input', render);
+
+$('save').addEventListener('click', ()=>{
+  const plan = +$('plan').value || 0;
+  let total = plan*WEIGHTS.plan;
+  EVENTS.forEach(ev=> total += counts[ev.k]*WEIGHTS[ev.k]);
+  log.unshift({
+    date:$('date').value, op:$('operator').value, shift:$('shift').value, co:changeover,
+    plan, ...counts, total
+  });
+  renderLog();
+  showToast('Saved to LOG');
+});
+
+$('reset').addEventListener('click', ()=>{
+  if(!confirm('Reset semua counter ke default?')) return;
+  counts = { ...DEFAULTS }; render();
+});
+
+function renderLog(){
+  if(!log.length){ $('logBody').innerHTML = '<div class="empty">Belum ada rekod. Tekan SAVE untuk tambah.</div>'; return; }
+  const rows = log.map(r=>`<tr>
+    <td>${r.date}</td><td>${r.op}</td><td>${r.shift}</td><td>${r.co}</td><td>${fmt(r.plan)}</td>
+    <td>${r.b}</td><td>${r.c}</td><td>${r.d}</td><td>${r.e}</td><td>${r.f}</td><td>${r.g}</td>
+    <td style="color:var(--green)">${fmt(r.total)} g</td><td style="color:var(--cyan)">${(r.total/1000).toFixed(1)} kg</td>
+  </tr>`).join('');
+  $('logBody').innerHTML = `<div class="scroll"><table>
+    <tr><th>Date</th><th>Operator</th><th>Shift</th><th>C/Over</th><th>Plan</th>
+    <th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th><th>Total</th><th>kg</th></tr>
+    ${rows}</table></div>`;
+}
+
+let toastT;
+function showToast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1600);
+}
+
+function updateBp(){
+  const w = window.innerWidth;
+  const label = w < 700 ? 'PHONE' : (w < 1024 ? 'TABLET' : 'DESKTOP');
+  $('bp').textContent = w + 'px · ' + label;
+}
+window.addEventListener('resize', updateBp);
+updateBp(); render(); renderLog();
+</script>
+</body>
+</html>
