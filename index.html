@@ -7,31 +7,57 @@
 <style>
   :root{
     --bg:#0F1419; --panel:#1B2330; --panel2:#232E3F; --tile:#1E2A38; --head:#11202E;
-    --border:#2B6B82; --cyan:#22D3EE; --green:#34D399; --amber:#FBBF24; --red:#F87171;
+    --border:#2B6B82; --border-soft:#1F3A47;
+    --cyan:#22D3EE; --green:#34D399; --amber:#FBBF24; --red:#F87171; --violet:#A78BFA;
     --text:#E5E7EB; --muted:#8A97A8;
     --mono:ui-monospace,"SF Mono","Consolas","Roboto Mono",monospace;
     --sans:system-ui,"Segoe UI",Roboto,sans-serif;
+    --shadow:0 4px 16px rgba(0,0,0,.35);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans)}
-  body{padding:10px;display:flex;justify-content:center}
-  .app{width:100%;max-width:1080px}
+  body{padding:10px;display:flex;justify-content:center;min-height:100vh}
+  .app{width:100%;max-width:1080px;display:flex;flex-direction:column;gap:10px}
 
-  .titlebar{background:var(--head);border:1px solid var(--cyan);border-radius:12px;
-    padding:14px 16px;text-align:center;position:relative}
-  .titlebar h1{margin:0;color:var(--cyan);font-weight:800;letter-spacing:.04em;
-    font-size:clamp(20px,4.8vw,34px)}
-  .titlebar p{margin:4px 0 0;color:var(--muted);font-size:clamp(9px,2vw,12px);letter-spacing:.06em}
-  .live{color:var(--green)}
-  .bp{position:absolute;top:10px;right:12px;font-family:var(--mono);font-size:11px;
-    color:var(--cyan);background:#0b2630;border:1px solid var(--border);border-radius:20px;
-    padding:3px 10px;white-space:nowrap}
+  .titlebar{background:linear-gradient(180deg,#0e1a25 0%,var(--head) 100%);
+    border:1px solid var(--cyan);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow)}
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center}
+  .logo{width:38px;height:38px;border-radius:9px;background:#0b2630;border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;color:var(--cyan);
+    font-family:var(--mono);font-weight:800;font-size:11px;flex-shrink:0;line-height:1;text-align:center}
+  .brand h1{margin:0;color:var(--cyan);font-weight:800;letter-spacing:.04em;
+    font-size:clamp(18px,4.4vw,30px);line-height:1.05}
+  .brand .sub{margin:2px 0 0;color:var(--muted);font-size:clamp(8.5px,1.9vw,11px);letter-spacing:.06em}
+
+  .statusbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--border-soft)}
+  .pill{font-family:var(--mono);font-size:10px;color:var(--muted);
+    background:#0b1620;border:1px solid var(--border-soft);border-radius:16px;
+    padding:3px 9px;display:inline-flex;align-items:center;gap:5px;letter-spacing:.03em}
+  .pill.ok{color:var(--green)} .pill.ok::before{content:'●';color:var(--green)}
+  .pill.info{color:var(--cyan)}
+  .pill b{color:var(--text);font-weight:700}
+
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;
+    background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px}
+  .tab{background:transparent;border:0;color:var(--muted);cursor:pointer;
+    padding:11px 8px;border-radius:8px;font-family:var(--sans);font-weight:700;
+    font-size:clamp(11px,2.6vw,13px);letter-spacing:.03em;
+    display:flex;align-items:center;justify-content:center;gap:6px}
+  .tab svg{width:16px;height:16px;flex-shrink:0}
+  .tab.active{background:var(--head);color:var(--cyan);box-shadow:inset 0 -2px 0 var(--cyan)}
+  @media (max-width:400px){ .tab span{display:none} .tab{padding:12px} .tab svg{width:18px;height:18px} }
+
+  .panel{display:none;flex-direction:column;gap:10px}
+  .panel.active{display:flex;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 
   .section{background:var(--head);border:1px solid var(--border);border-radius:10px;
     color:var(--cyan);font-weight:700;text-align:center;letter-spacing:.06em;
-    padding:8px;margin:12px 0 10px;font-size:clamp(11px,2.4vw,14px)}
+    padding:8px;font-size:clamp(11px,2.4vw,14px)}
 
-  .cards{display:grid;gap:10px;grid-template-columns:repeat(2,1fr);margin-top:12px}
+  /* === INPUT === */
+  .cards{display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
   .field{display:flex;flex-direction:column}
   .field label{display:block;color:var(--muted);font-size:10px;font-weight:700;
     letter-spacing:.05em;margin:0 0 4px 2px;text-transform:uppercase}
@@ -39,11 +65,10 @@
     min-height:50px;display:flex;align-items:center;justify-content:center;padding:6px;margin-top:auto}
   .box.accent{background:var(--panel2)}
   select,input{width:100%;background:transparent;border:0;color:var(--amber);
-    font-family:var(--mono);font-weight:700;font-size:clamp(15px,3.4vw,19px);
-    text-align:center;outline:none}
+    font-family:var(--mono);font-weight:700;font-size:clamp(15px,3.4vw,19px);text-align:center;outline:none}
   select option{background:#0d141c;color:var(--text)}
   .readout{font-family:var(--mono);font-weight:800;font-size:clamp(15px,3.4vw,19px)}
-  .readout.green{color:var(--green)} .readout.cyan{color:var(--cyan)}
+  .readout.green{color:var(--green)}
   .toggle{display:flex;width:100%;height:100%;gap:0}
   .toggle button{flex:1;border:0;background:transparent;color:var(--muted);
     font-family:var(--mono);font-weight:700;font-size:15px;cursor:pointer;border-radius:7px}
@@ -52,20 +77,17 @@
   .tiles{display:grid;gap:10px;grid-template-columns:repeat(2,1fr)}
   .tile{background:var(--tile);border:1px solid var(--border);border-radius:11px;
     padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px}
-  .tile .tag{color:var(--cyan);font-weight:700;font-size:clamp(10px,2.3vw,12px);
-    text-align:center;letter-spacing:.03em}
+  .tile .tag{color:var(--cyan);font-weight:700;font-size:clamp(10px,2.3vw,12px);text-align:center;letter-spacing:.03em}
   .counter{display:flex;align-items:center;gap:10px;width:100%;justify-content:center}
   .counter button{width:44px;height:44px;border-radius:10px;border:1px solid var(--border);
     background:var(--panel2);color:var(--cyan);font-size:24px;font-weight:700;cursor:pointer;
     display:flex;align-items:center;justify-content:center;line-height:1;flex:0 0 auto}
   .counter button:active{transform:scale(.94)}
   .counter button.minus{color:var(--red)}
-  .count{font-family:var(--mono);font-weight:800;color:#fff;
-    font-size:clamp(26px,7vw,38px);min-width:54px;text-align:center}
+  .count{font-family:var(--mono);font-weight:800;color:#fff;font-size:clamp(26px,7vw,38px);min-width:54px;text-align:center}
   .sub{color:var(--amber);font-family:var(--mono);font-size:clamp(9px,2vw,12px)}
 
-  .total{background:var(--head);border:1px solid var(--green);border-radius:12px;
-    margin-top:14px;overflow:hidden}
+  .total{background:var(--head);border:1px solid var(--green);border-radius:12px;overflow:hidden}
   .total .cap{background:var(--head);color:var(--cyan);text-align:center;font-weight:700;
     padding:8px;letter-spacing:.05em;font-size:clamp(11px,2.4vw,14px);border-bottom:1px solid #1d3a31}
   .total .row{display:grid;grid-template-columns:1.6fr 1fr}
@@ -75,28 +97,173 @@
     display:flex;align-items:center;justify-content:center;font-size:clamp(18px,5vw,30px)}
   @media (max-width:430px){ .total .row{grid-template-columns:1fr} .total .kg{padding:8px} }
 
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .btn{border:0;border-radius:12px;padding:16px;font-weight:800;font-size:clamp(14px,3.2vw,17px);
-    cursor:pointer;letter-spacing:.03em}
+    cursor:pointer;letter-spacing:.03em;font-family:var(--sans)}
   .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
   .save{background:var(--green);color:#06281c} .reset{background:var(--red);color:#3b0a0a}
-  .foot{color:var(--muted);font-size:clamp(9px,2vw,11px);text-align:center;margin:12px 4px 6px}
 
-  .log{margin-top:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
-  .log h3{margin:0;background:var(--panel2);color:var(--cyan);font-size:12px;padding:8px 12px;letter-spacing:.05em}
-  .log .empty{color:var(--muted);padding:14px;text-align:center;font-size:12px}
-  table{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)}
-  th,td{padding:7px 8px;text-align:center;border-bottom:1px solid #20303f;white-space:nowrap}
-  th{color:var(--muted);font-weight:700;background:var(--panel)}
-  td{color:var(--text)}
+  /* === HISTORY === */
+  .kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .kpi .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px;text-align:center}
+  .kpi .lbl{color:var(--muted);font-size:9.5px;letter-spacing:.06em;font-weight:700;text-transform:uppercase}
+  .kpi .val{font-family:var(--mono);font-weight:800;font-size:clamp(16px,4.2vw,22px);margin-top:4px;line-height:1.1}
+  .kpi .val.cy{color:var(--cyan)} .kpi .val.gr{color:var(--green)} .kpi .val.am{color:var(--amber)}
+
+  .chips{display:flex;gap:6px;overflow-x:auto;padding:2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{background:var(--panel);border:1px solid var(--border-soft);color:var(--muted);
+    padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;
+    white-space:nowrap;flex-shrink:0;font-family:var(--sans)}
+  .chip.on{background:var(--cyan);color:#082631;border-color:var(--cyan)}
+
+  .searchbar{display:flex;gap:8px;align-items:center;
+    background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:0 12px;flex:1}
+  .searchbar svg{width:16px;height:16px;color:var(--muted);flex-shrink:0}
+  .searchbar input{padding:11px 0;color:var(--text);text-align:left;font-family:var(--sans);font-weight:500;font-size:13px}
+  .refresh{background:var(--panel2);border:1px solid var(--border);color:var(--cyan);
+    width:42px;height:42px;border-radius:10px;cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center}
+  .refresh svg{width:18px;height:18px}
+  .searchrow{display:flex;gap:8px}
+
+  .records{display:flex;flex-direction:column;gap:8px}
+  .rec{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:12px}
+  .rec .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+  .rec .date{font-family:var(--mono);color:var(--cyan);font-weight:700;font-size:12px}
+  .rec .badges{display:flex;gap:5px}
+  .rec .badge{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:.03em}
+  .badge.shift{background:#132b3d;color:var(--cyan);border:1px solid var(--border-soft)}
+  .badge.co-yes{background:#3a2712;color:var(--amber);border:1px solid #5a3a15}
+  .badge.co-no{background:#1a2530;color:var(--muted);border:1px solid var(--border-soft)}
+  .rec .mid{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+  .rec .op{font-weight:800;font-size:15px;color:var(--text)}
+  .rec .op small{color:var(--muted);font-weight:500;font-size:11px;margin-left:6px}
+  .rec .kg{font-family:var(--mono);font-weight:800;color:var(--green);font-size:19px;text-align:right}
+  .rec .kg small{color:var(--muted);font-weight:500;font-size:10px;display:block}
+  .rec-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding-top:8px;
+    border-top:1px solid var(--border-soft)}
+  .rec-btn{border:1px solid var(--border);background:var(--tile);color:var(--text);
+    padding:8px;border-radius:7px;cursor:pointer;font-weight:700;font-size:11.5px;
+    letter-spacing:.05em;display:flex;align-items:center;justify-content:center;gap:5px;font-family:var(--sans)}
+  .rec-btn:active{transform:scale(.97)}
+  .rec-btn svg{width:14px;height:14px}
+  .rec-btn.view{color:var(--cyan)} .rec-btn.edit{color:var(--amber)}
+
+  .empty{background:var(--panel);border:1px dashed var(--border-soft);border-radius:11px;
+    padding:32px 16px;text-align:center;color:var(--muted);font-size:12.5px}
+  .empty svg{width:32px;height:32px;color:var(--border);margin-bottom:8px}
+
+  /* === REPORT === */
+  .report-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .action-btn{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+    padding:14px 12px;cursor:pointer;color:var(--text);text-align:left;
+    display:flex;flex-direction:column;gap:8px;font-family:var(--sans)}
+  .action-btn.on{border-color:var(--cyan);background:linear-gradient(180deg,#152836 0%,var(--panel) 100%);
+    box-shadow:0 0 0 1px var(--cyan) inset}
+  .action-btn .head{display:flex;align-items:center;gap:8px}
+  .action-btn .ico{width:34px;height:34px;border-radius:8px;background:var(--panel2);
+    display:flex;align-items:center;justify-content:center;color:var(--cyan);flex-shrink:0}
+  .action-btn.trend .ico{color:var(--amber)}
+  .action-btn .ico svg{width:18px;height:18px}
+  .action-btn h4{margin:0;font-size:13px;font-weight:800;letter-spacing:.02em}
+  .action-btn p{margin:0;color:var(--muted);font-size:10.5px;line-height:1.4}
+
+  .result{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;min-height:180px}
+  .result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-soft)}
+  .result-head h3{margin:0;color:var(--cyan);font-size:13px;letter-spacing:.05em}
+  .result-head .meta{font-family:var(--mono);color:var(--muted);font-size:10px}
+  .placeholder{color:var(--muted);text-align:center;padding:36px 12px;font-size:12.5px;line-height:1.5}
+  .placeholder svg{width:36px;height:36px;color:var(--border);margin-bottom:8px}
+
+  .range{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:12px}
+  .range .rf{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:6px 10px}
+  .range .rf label{display:block;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.06em}
+  .range .rf input{color:var(--cyan);text-align:left;font-size:13px;padding-top:2px}
+  .range .apply{background:var(--cyan);color:#082631;border:0;border-radius:8px;
+    padding:0 14px;font-weight:800;font-size:12px;cursor:pointer}
+  @media (max-width:460px){ .range{grid-template-columns:1fr 1fr}
+    .range .apply{grid-column:1/-1;padding:10px 14px} }
+
+  table.wk{width:100%;border-collapse:collapse;font-size:11.5px;font-family:var(--mono)}
+  table.wk th,table.wk td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--border-soft)}
+  table.wk th{color:var(--muted);font-weight:700;background:var(--tile)}
+  table.wk td.wk{color:var(--cyan);font-weight:700;text-align:left;padding-left:10px}
+  table.wk td.kg{color:var(--green);font-weight:700}
   .scroll{overflow-x:auto}
 
+  .chart-block{margin-bottom:14px}
+  .chart-title{color:var(--cyan);font-weight:700;font-size:12px;letter-spacing:.05em;
+    text-align:center;margin-bottom:6px;padding:6px;background:var(--tile);border-radius:6px}
+  .chart{width:100%;height:220px;display:block}
+  .chart .bar{fill:var(--cyan)}
+  .chart .grid{stroke:var(--border-soft);stroke-dasharray:2 3;stroke-width:1}
+  .chart .axis{fill:var(--muted);font-size:10px;font-family:var(--mono)}
+  .chart .val{fill:var(--text);font-size:10px;font-weight:700;font-family:var(--mono)}
+  .chart .line{stroke:var(--amber);stroke-width:2.5;fill:none;stroke-linejoin:round;stroke-linecap:round}
+  .chart .dot{fill:var(--amber);stroke:#1a1205;stroke-width:1.5}
+  .chart .area{fill:var(--amber);opacity:.12}
+
+  /* === MODAL === */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;
+    align-items:center;justify-content:center;z-index:100;padding:12px;overflow-y:auto}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--bg);border:1px solid var(--cyan);border-radius:14px;
+    width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow)}
+  .modal-head{padding:12px 14px;border-bottom:1px solid var(--border-soft);
+    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;
+    background:var(--head);z-index:1}
+  .modal-head h3{margin:0;color:var(--cyan);font-size:14px;letter-spacing:.05em}
+  .modal-head .x{background:transparent;border:0;color:var(--muted);cursor:pointer;
+    font-size:22px;padding:0 6px;line-height:1}
+  .modal-body{padding:14px;display:flex;flex-direction:column;gap:10px}
+  .modal-foot{padding:12px 14px;border-top:1px solid var(--border-soft);
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;position:sticky;bottom:0;background:var(--head)}
+  .modal-foot button{padding:12px;border-radius:8px;border:0;font-weight:800;cursor:pointer;font-size:13.5px}
+  .modal .cancel{background:var(--tile);color:var(--muted);border:1px solid var(--border-soft)}
+  .modal .primary{background:var(--green);color:#06281c}
+  .modal .go-edit{background:var(--amber);color:#1a1205}
+
+  .view-hero{background:var(--head);border:1px solid var(--border);border-radius:10px;
+    padding:12px;text-align:center}
+  .view-hero .who{color:var(--muted);font-size:11px;letter-spacing:.05em}
+  .view-hero .op{font-weight:800;font-size:18px;color:var(--text);margin:2px 0 4px}
+  .view-hero .kg-big{font-family:var(--mono);font-weight:800;color:var(--green);
+    font-size:32px;line-height:1;margin-top:6px}
+  .view-hero .g-sm{color:var(--muted);font-family:var(--mono);font-size:11px;margin-top:2px}
+  .view-hero .meta{display:flex;justify-content:center;gap:6px;margin-top:8px}
+
+  .view-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .view-cell{background:var(--tile);border:1px solid var(--border-soft);border-radius:8px;padding:8px}
+  .view-cell .k{color:var(--muted);font-size:9.5px;letter-spacing:.05em;font-weight:700;text-transform:uppercase}
+  .view-cell .v{font-family:var(--mono);font-weight:800;color:var(--text);font-size:15px;margin-top:2px}
+  .view-cell .v small{color:var(--amber);font-weight:600;font-size:10px;margin-left:6px}
+  @media (min-width:520px){ .view-grid{grid-template-columns:repeat(3,1fr)} }
+
+  /* edit form */
+  .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .edit-field label{display:block;color:var(--muted);font-size:10px;font-weight:700;
+    letter-spacing:.05em;margin:0 0 3px 2px;text-transform:uppercase}
+  .edit-field input, .edit-field select{background:var(--panel2);border:1px solid var(--border);
+    border-radius:8px;padding:10px;font-family:var(--mono);font-weight:700;color:var(--amber);
+    font-size:14px;text-align:center;width:100%}
+  .edit-field.long{grid-column:1/-1}
+  .edit-total{background:#0B1F17;border:1px solid var(--green);border-radius:10px;
+    padding:10px;text-align:center;margin-top:4px}
+  .edit-total .k{color:var(--cyan);font-size:10px;font-weight:700;letter-spacing:.05em}
+  .edit-total .v{font-family:var(--mono);font-weight:800;color:var(--green);font-size:22px;margin-top:2px}
+
+  .foot{color:var(--muted);font-size:clamp(9px,2vw,11px);text-align:center;padding:6px 4px}
   .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);
     background:var(--green);color:#06281c;font-weight:800;padding:12px 22px;border-radius:30px;
-    opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:14px}
+    opacity:0;pointer-events:none;transition:.25s;z-index:200;font-size:14px;max-width:90vw;text-align:center;
+    box-shadow:var(--shadow)}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  .toast.err{background:var(--red);color:#3b0a0a}
   :focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
   @media (min-width:680px){
     .cards{grid-template-columns:repeat(3,1fr)}
@@ -105,89 +272,253 @@
   @media (max-width:679px){
     .field label{min-height:2.5em;display:flex;align-items:flex-end}
   }
-  @media (max-width:560px){
-    .bp{position:static;display:inline-block;margin:0 auto 10px}
-    .titlebar{padding-top:12px}
-  }
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="titlebar">
-    <div class="bp" id="bp">— px</div>
-    <h1>D92A &nbsp;HOTMELT USAGE</h1>
-    <p>HOTMELT CONSUMPTION MONITOR&nbsp; | &nbsp;MAIN ASSEMBLY — DOOR MIRROR&nbsp; | &nbsp;<span class="live">● LIVE</span></p>
+    <div class="brand">
+      <div class="logo">D92A</div>
+      <div>
+        <h1>HOTMELT USAGE</h1>
+        <p class="sub">CONSUMPTION MONITOR&nbsp; · &nbsp;MAIN ASSEMBLY — DOOR MIRROR</p>
+      </div>
+    </div>
+    <div class="statusbar">
+      <span class="pill ok">SYSTEM</span>
+      <span class="pill info">LAST SYNC: <b id="syncTime">—</b></span>
+      <span class="pill info">MODE: <b id="modeTag">DEMO</b></span>
+      <span class="pill">v2.0</span>
+      <span class="pill" id="bp">— px</span>
+    </div>
   </div>
 
-  <div class="cards">
-    <div class="field"><label>Operator</label>
-      <div class="box accent"><select id="operator">
-        <option>AHMAD</option><option>ROSLI</option><option>FAIZAL</option>
-        <option>SITI</option><option>KUMAR</option><option>WEI MING</option><option>NURUL</option>
-      </select></div></div>
-    <div class="field"><label>Date</label>
-      <div class="box"><input type="date" id="date"></div></div>
-    <div class="field"><label>Today's Prod Plan (pcs)</label>
-      <div class="box accent"><input type="number" id="plan" value="8000" min="0" inputmode="numeric"></div></div>
-    <div class="field"><label>Shift</label>
-      <div class="box accent"><select id="shift"><option>Shift A</option><option>Shift B</option><option>Shift C</option></select></div></div>
-    <div class="field"><label>Changeover?</label>
-      <div class="box"><div class="toggle" id="cover">
-        <button data-v="NO" class="on">NO</button><button data-v="YES">YES</button></div></div></div>
-    <div class="field"><label>Plan Hotmelt&nbsp; a = plan × 48g</label>
-      <div class="box"><span class="readout green" id="planG">0 g</span></div></div>
+  <div class="tabs">
+    <button class="tab active" data-tab="input">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10h10M7 14h6"/></svg>
+      <span>Usage Input</span>
+    </button>
+    <button class="tab" data-tab="history">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span>History</span>
+    </button>
+    <button class="tab" data-tab="report">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+      <span>Report</span>
+    </button>
   </div>
 
-  <div class="section">EVENT COUNTERS &nbsp;—&nbsp; TAP &nbsp;+&nbsp; TO COUNT</div>
-  <div class="tiles" id="tiles"></div>
+  <!-- INPUT -->
+  <section class="panel active" id="p-input">
+    <div class="cards">
+      <div class="field"><label>Operator</label>
+        <div class="box accent"><select id="operator">
+          <option>AHMAD</option><option>ROSLI</option><option>FAIZAL</option>
+          <option>SITI</option><option>KUMAR</option><option>WEI MING</option><option>NURUL</option>
+        </select></div></div>
+      <div class="field"><label>Date</label>
+        <div class="box"><input type="date" id="date"></div></div>
+      <div class="field"><label>Today's Prod Plan (pcs)</label>
+        <div class="box accent"><input type="number" id="plan" value="8000" min="0" inputmode="numeric"></div></div>
+      <div class="field"><label>Shift</label>
+        <div class="box accent"><select id="shift"><option>Shift A</option><option>Shift B</option><option>Shift C</option></select></div></div>
+      <div class="field"><label>Changeover?</label>
+        <div class="box"><div class="toggle" id="cover">
+          <button data-v="NO" class="on">NO</button><button data-v="YES">YES</button></div></div></div>
+      <div class="field"><label>Plan Hotmelt&nbsp; a = plan × 48g</label>
+        <div class="box"><span class="readout green" id="planG">0 g</span></div></div>
+    </div>
 
-  <div class="total">
-    <div class="cap">TOTAL HOTMELT CONSUMPTION TODAY</div>
-    <div class="row"><div class="g" id="totalG">0 g</div><div class="kg" id="totalKg">0.0 kg</div></div>
+    <div class="section">EVENT COUNTERS &nbsp;—&nbsp; TAP &nbsp;+&nbsp; TO COUNT</div>
+    <div class="tiles" id="tiles"></div>
+
+    <div class="total">
+      <div class="cap">TOTAL HOTMELT CONSUMPTION TODAY</div>
+      <div class="row"><div class="g" id="totalG">0 g</div><div class="kg" id="totalKg">0.0 kg</div></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn save" id="save">💾 SAVE → LOG</button>
+      <button class="btn reset" id="reset">↻ RESET</button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="panel" id="p-history">
+    <div class="kpi">
+      <div class="card"><div class="lbl">Entries</div><div class="val cy" id="kpiCount">0</div></div>
+      <div class="card"><div class="lbl">Total Used</div><div class="val gr" id="kpiTotal">0.0 kg</div></div>
+      <div class="card"><div class="lbl">Avg / Entry</div><div class="val am" id="kpiAvg">0.0 kg</div></div>
+    </div>
+
+    <div class="chips" id="filters">
+      <button class="chip on" data-f="today">Today</button>
+      <button class="chip" data-f="week">This Week</button>
+      <button class="chip" data-f="month">This Month</button>
+      <button class="chip" data-f="all">All</button>
+    </div>
+
+    <div class="searchrow">
+      <div class="searchbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search" placeholder="Search operator, shift…">
+      </div>
+      <button class="refresh" id="refresh" aria-label="refresh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+      </button>
+    </div>
+
+    <div class="records" id="records"></div>
+  </section>
+
+  <!-- REPORT -->
+  <section class="panel" id="p-report">
+    <div class="section">REPORT</div>
+    <div class="report-actions">
+      <button class="action-btn" id="btnTable">
+        <div class="head">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg></div>
+          <h4>Data Table</h4>
+        </div>
+        <p>Weekly breakdown table — entries, prod plan, consumption per week.</p>
+      </button>
+      <button class="action-btn trend" id="btnTrend">
+        <div class="head">
+          <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+          <h4>Trend</h4>
+        </div>
+        <p>Hotmelt-by-event bar + daily total line chart, filter by date range.</p>
+      </button>
+    </div>
+
+    <div class="result" id="reportResult">
+      <div class="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-5"/></svg>
+        <div>Pilih action di atas untuk paparkan report.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">D92A Hotmelt HMI &nbsp;·&nbsp; Data disimpan ke Google Sheets (LOG) bila SAVE ditekan.</div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-bg" id="viewModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>VIEW ENTRY</h3>
+      <button class="x" data-close>×</button>
+    </div>
+    <div class="modal-body" id="viewBody"></div>
+    <div class="modal-foot">
+      <button class="cancel" data-close>Close</button>
+      <button class="go-edit" id="viewToEdit">✏ Edit This Record</button>
+    </div>
   </div>
+</div>
 
-  <div class="actions">
-    <button class="btn save" id="save">💾 SAVE → LOG</button>
-    <button class="btn reset" id="reset">↻ RESET</button>
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>EDIT ENTRY</h3>
+      <button class="x" data-close>×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="edit-grid">
+        <div class="edit-field long"><label>Date</label><input type="date" id="editDate"></div>
+        <div class="edit-field"><label>Operator</label>
+          <select id="editOp">
+            <option>AHMAD</option><option>ROSLI</option><option>FAIZAL</option>
+            <option>SITI</option><option>KUMAR</option><option>WEI MING</option><option>NURUL</option>
+          </select></div>
+        <div class="edit-field"><label>Shift</label>
+          <select id="editShift"><option>Shift A</option><option>Shift B</option><option>Shift C</option></select></div>
+        <div class="edit-field"><label>Changeover</label>
+          <select id="editCo"><option>NO</option><option>YES</option></select></div>
+        <div class="edit-field"><label>Prod Plan (pcs)</label>
+          <input type="number" id="editPlan" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>b · INITIAL</label><input type="number" id="editB" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>c · BODY-FIT</label><input type="number" id="editC" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>d · BREAK</label><input type="number" id="editD" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>e · IDLING</label><input type="number" id="editE" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>f · REPLACE</label><input type="number" id="editF" min="0" inputmode="numeric"></div>
+        <div class="edit-field"><label>g · PURGE</label><input type="number" id="editG" min="0" inputmode="numeric"></div>
+      </div>
+      <div class="edit-total">
+        <div class="k">RECALCULATED TOTAL</div>
+        <div class="v"><span id="editTotalG">0 g</span> &nbsp;·&nbsp; <span id="editTotalKg">0.0 kg</span></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="cancel" data-close>Cancel</button>
+      <button class="primary" id="editSaveBtn">💾 Save Changes</button>
+    </div>
   </div>
-  <div class="foot">Demo prototype. Dalam app live Zul, SAVE akan POST ke Google Apps Script → simpan ke Google Sheets (sama pattern macam consumable tracker).</div>
-
-  <div class="log">
-    <h3>SESSION LOG (demo)</h3>
-    <div id="logBody"><div class="empty">Belum ada rekod. Tekan SAVE untuk tambah.</div></div>
-  </div>
-
 </div>
 
 <div class="toast" id="toast">Saved</div>
 
 <script>
+// ================= CONFIG =================
+const API_URL = '';   // ← letak URL /exec Apps Script kat sini bila dah deploy
+
 const WEIGHTS = { plan:48, b:300, c:200, d:200, e:60, f:58, g:200 };
+const EVENT_LABELS = { a:'PLAN', b:'INITIAL', c:'BODY-FIT', d:'BREAK', e:'IDLING', f:'REPLACE', g:'PURGE' };
 const EVENTS = [
   {k:'b', name:'INITIAL START'}, {k:'c', name:'AFTER BODY FITTING'}, {k:'d', name:'AFTER BREAK'},
   {k:'e', name:'IDLING'}, {k:'f', name:'REPLACEMENT'}, {k:'g', name:'PURGING ONLY'},
 ];
 const DEFAULTS = { b:1, c:1, d:1, e:0, f:0, g:0 };
+
 let counts = { ...DEFAULTS };
 let changeover = 'NO';
-let log = [];
+let records = [];
+let currentFilter = 'today';
+let searchTerm = '';
+let reportMode = null; // 'table' | 'trend'
+let dateFrom, dateTo;
 
 const $ = id => document.getElementById(id);
 $('date').valueAsDate = new Date();
+$('modeTag').textContent = API_URL ? 'LIVE' : 'DEMO';
 
+// tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=> setTab(t.dataset.tab));
+});
+function setTab(name){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active', x.id==='p-'+name));
+  try{ history.replaceState(null,'','#'+name); }catch(e){}
+  if(name==='history') refreshHistory();
+}
+if(location.hash){ const t=location.hash.slice(1); if(['input','history','report'].includes(t)) setTab(t); }
+
+// ================= INPUT =================
 $('tiles').innerHTML = EVENTS.map(ev => `
   <div class="tile">
     <div class="tag">${ev.k} · ${ev.name}</div>
     <div class="counter">
-      <button class="minus" data-k="${ev.k}" data-d="-1" aria-label="kurang ${ev.k}">−</button>
+      <button class="minus" data-k="${ev.k}" data-d="-1">−</button>
       <div class="count" id="cnt-${ev.k}">${counts[ev.k]}</div>
-      <button data-k="${ev.k}" data-d="1" aria-label="tambah ${ev.k}">+</button>
+      <button data-k="${ev.k}" data-d="1">+</button>
     </div>
     <div class="sub">× ${WEIGHTS[ev.k]} g = <span id="sub-${ev.k}">0 g</span></div>
   </div>`).join('');
 
-function fmt(n){ return Math.round(n).toLocaleString('en-US'); }
+const fmt = n => Math.round(n).toLocaleString('en-US');
+const fmtKg = g => (g/1000).toFixed(1) + ' kg';
 
 function render(){
   const plan = +$('plan').value || 0;
@@ -204,33 +535,43 @@ function render(){
   $('totalKg').textContent = (total/1000).toFixed(1) + ' kg';
 }
 
-document.querySelectorAll('.counter button').forEach(btn=>{
+document.querySelectorAll('#tiles .counter button').forEach(btn=>{
   btn.addEventListener('click', ()=>{
-    const k = btn.dataset.k, d = +btn.dataset.d;
-    counts[k] = Math.max(0, counts[k] + d);
+    counts[btn.dataset.k] = Math.max(0, counts[btn.dataset.k] + (+btn.dataset.d));
     render();
   });
 });
-
 document.querySelectorAll('#cover button').forEach(b=>{
   b.addEventListener('click', ()=>{
     document.querySelectorAll('#cover button').forEach(x=>x.classList.remove('on'));
     b.classList.add('on'); changeover = b.dataset.v;
   });
 });
-
 $('plan').addEventListener('input', render);
 
-$('save').addEventListener('click', ()=>{
+$('save').addEventListener('click', async ()=>{
+  const btn = $('save'), old = btn.textContent;
   const plan = +$('plan').value || 0;
   let total = plan*WEIGHTS.plan;
   EVENTS.forEach(ev=> total += counts[ev.k]*WEIGHTS[ev.k]);
-  log.unshift({
-    date:$('date').value, op:$('operator').value, shift:$('shift').value, co:changeover,
-    plan, ...counts, total
-  });
-  renderLog();
-  showToast('Saved to LOG');
+  const payload = { date:$('date').value, op:$('operator').value,
+    shift:$('shift').value, co:changeover, plan, ...counts };
+
+  if(!API_URL){
+    const id = 'DEMO-' + Date.now();
+    records.unshift({ ...payload, total, timestamp:new Date().toISOString(), id });
+    syncTime(); showToast('Saved (demo)'); return;
+  }
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+  try{
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) });
+    const out = await res.json();
+    if(out.ok){
+      records.unshift({ ...payload, total, timestamp:new Date().toISOString(), id:out.id });
+      syncTime(); showToast('Saved ✓');
+    } else showToast('Error: ' + (out.error || 'gagal'), true);
+  }catch(err){ showToast('Network error — check URL', true); }
+  finally{ btn.disabled = false; btn.textContent = old; }
 });
 
 $('reset').addEventListener('click', ()=>{
@@ -238,32 +579,403 @@ $('reset').addEventListener('click', ()=>{
   counts = { ...DEFAULTS }; render();
 });
 
-function renderLog(){
-  if(!log.length){ $('logBody').innerHTML = '<div class="empty">Belum ada rekod. Tekan SAVE untuk tambah.</div>'; return; }
-  const rows = log.map(r=>`<tr>
-    <td>${r.date}</td><td>${r.op}</td><td>${r.shift}</td><td>${r.co}</td><td>${fmt(r.plan)}</td>
-    <td>${r.b}</td><td>${r.c}</td><td>${r.d}</td><td>${r.e}</td><td>${r.f}</td><td>${r.g}</td>
-    <td style="color:var(--green)">${fmt(r.total)} g</td><td style="color:var(--cyan)">${(r.total/1000).toFixed(1)} kg</td>
-  </tr>`).join('');
-  $('logBody').innerHTML = `<div class="scroll"><table>
-    <tr><th>Date</th><th>Operator</th><th>Shift</th><th>C/Over</th><th>Plan</th>
-    <th>b</th><th>c</th><th>d</th><th>e</th><th>f</th><th>g</th><th>Total</th><th>kg</th></tr>
-    ${rows}</table></div>`;
+// ================= HISTORY =================
+document.querySelectorAll('#filters .chip').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    document.querySelectorAll('#filters .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on'); currentFilter = c.dataset.f; renderHistory();
+  });
+});
+$('search').addEventListener('input', e=>{ searchTerm = e.target.value.toLowerCase(); renderHistory(); });
+$('refresh').addEventListener('click', refreshHistory);
+
+async function refreshHistory(){
+  if(!API_URL){ renderHistory(); return; }
+  try{
+    const res = await fetch(API_URL + '?action=list');
+    const data = await res.json();
+    if(Array.isArray(data)){
+      records = data.map(r=>({
+        id: r.ID,
+        date: (r.Date+'').slice(0,10), op:r.Operator, shift:r.Shift, co:r.Changeover,
+        plan:+r.ProdPlan, b:+r.b_InitialStart, c:+r.c_AfterBodyFitting, d:+r.d_AfterBreak,
+        e:+r.e_Idling, f:+r.f_Replacement, g:+r.g_PurgingOnly,
+        total:+r.TotalG, timestamp:r.Timestamp
+      })).sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp));
+      syncTime();
+    }
+  }catch(err){ showToast('Fetch failed', true); }
+  renderHistory();
 }
 
+function filterRecords(){
+  const now = new Date(); const today = now.toISOString().slice(0,10);
+  const start = new Date(now); start.setHours(0,0,0,0);
+  const weekStart = new Date(start); weekStart.setDate(start.getDate() - start.getDay());
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  return records.filter(r=>{
+    const d = new Date(r.date || r.timestamp);
+    if(currentFilter==='today' && (r.date||'').slice(0,10) !== today) return false;
+    if(currentFilter==='week' && d < weekStart) return false;
+    if(currentFilter==='month' && d < monthStart) return false;
+    if(searchTerm){
+      const hay = `${r.op} ${r.shift} ${r.co}`.toLowerCase();
+      if(!hay.includes(searchTerm)) return false;
+    }
+    return true;
+  });
+}
+
+function renderHistory(){
+  const list = filterRecords();
+  $('kpiCount').textContent = list.length;
+  const totalG = list.reduce((s,r)=>s+r.total, 0);
+  $('kpiTotal').textContent = fmtKg(totalG);
+  $('kpiAvg').textContent = list.length ? fmtKg(totalG/list.length) : '0.0 kg';
+
+  if(!list.length){
+    $('records').innerHTML = `<div class="empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>
+      <div>Tiada rekod untuk filter ni.<br>Tekan SAVE dalam tab Usage Input untuk mula.</div></div>`;
+    return;
+  }
+  $('records').innerHTML = list.map(r=>`
+    <div class="rec">
+      <div class="top">
+        <div class="date">${(r.date||'').slice(0,10)} · ${new Date(r.timestamp||r.date).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="badges">
+          <span class="badge shift">${r.shift||'—'}</span>
+          <span class="badge ${r.co==='YES'?'co-yes':'co-no'}">C/O ${r.co||'NO'}</span>
+        </div>
+      </div>
+      <div class="mid">
+        <div class="op">${r.op||'—'} <small>plan ${fmt(r.plan)} pcs</small></div>
+        <div class="kg">${fmtKg(r.total)}<small>${fmt(r.total)} g</small></div>
+      </div>
+      <div class="rec-actions">
+        <button class="rec-btn view" data-id="${r.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          VIEW</button>
+        <button class="rec-btn edit" data-id="${r.id}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          EDIT</button>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('.rec-btn.view').forEach(b=> b.addEventListener('click', ()=> openView(b.dataset.id)));
+  document.querySelectorAll('.rec-btn.edit').forEach(b=> b.addEventListener('click', ()=> openEdit(b.dataset.id)));
+}
+
+// ================= VIEW / EDIT MODAL =================
+function findRec(id){ return records.find(r => r.id === id); }
+function closeModals(){ document.querySelectorAll('.modal-bg').forEach(m=>m.classList.remove('show')); }
+document.querySelectorAll('[data-close]').forEach(x=> x.addEventListener('click', closeModals));
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click', e=>{ if(e.target===m) closeModals(); });
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModals(); });
+
+function openView(id){
+  const r = findRec(id); if(!r) return;
+  const rows = [
+    { k:'a PLAN',   v: fmt(r.plan) + ' pcs',    sub: fmt(r.plan*WEIGHTS.plan) + ' g' },
+    { k:'b INITIAL', v: r.b, sub: fmt(r.b*WEIGHTS.b) + ' g' },
+    { k:'c BODY-FIT', v: r.c, sub: fmt(r.c*WEIGHTS.c) + ' g' },
+    { k:'d BREAK', v: r.d, sub: fmt(r.d*WEIGHTS.d) + ' g' },
+    { k:'e IDLING', v: r.e, sub: fmt(r.e*WEIGHTS.e) + ' g' },
+    { k:'f REPLACE', v: r.f, sub: fmt(r.f*WEIGHTS.f) + ' g' },
+    { k:'g PURGE', v: r.g, sub: fmt(r.g*WEIGHTS.g) + ' g' },
+  ];
+  $('viewBody').innerHTML = `
+    <div class="view-hero">
+      <div class="who">${(r.date||'').slice(0,10)} &nbsp;·&nbsp; ${r.shift||'—'} &nbsp;·&nbsp; C/O ${r.co||'NO'}</div>
+      <div class="op">${r.op||'—'}</div>
+      <div class="kg-big">${fmtKg(r.total)}</div>
+      <div class="g-sm">${fmt(r.total)} g</div>
+    </div>
+    <div style="color:var(--muted);font-size:10px;letter-spacing:.06em;text-align:center;padding:4px 0">BREAKDOWN</div>
+    <div class="view-grid">
+      ${rows.map(x=>`<div class="view-cell"><div class="k">${x.k}</div>
+        <div class="v">${x.v}<small>= ${x.sub}</small></div></div>`).join('')}
+    </div>
+    <div style="color:var(--muted);font-size:10px;font-family:var(--mono);text-align:center;padding:4px 0">
+      ID: ${r.id||'—'}
+    </div>`;
+  $('viewToEdit').onclick = ()=> { closeModals(); openEdit(id); };
+  $('viewModal').classList.add('show');
+}
+
+function openEdit(id){
+  const r = findRec(id); if(!r) return;
+  $('editId').value = r.id;
+  $('editDate').value = (r.date||'').slice(0,10);
+  $('editOp').value = r.op; $('editShift').value = r.shift; $('editCo').value = r.co;
+  $('editPlan').value = r.plan;
+  $('editB').value = r.b; $('editC').value = r.c; $('editD').value = r.d;
+  $('editE').value = r.e; $('editF').value = r.f; $('editG').value = r.g;
+  computeEditTotal();
+  $('editModal').classList.add('show');
+}
+
+function computeEditTotal(){
+  const plan=+$('editPlan').value||0, b=+$('editB').value||0, c=+$('editC').value||0,
+        d=+$('editD').value||0, e=+$('editE').value||0, f=+$('editF').value||0, g=+$('editG').value||0;
+  const total = plan*WEIGHTS.plan + b*WEIGHTS.b + c*WEIGHTS.c + d*WEIGHTS.d
+              + e*WEIGHTS.e + f*WEIGHTS.f + g*WEIGHTS.g;
+  $('editTotalG').textContent = fmt(total) + ' g';
+  $('editTotalKg').textContent = (total/1000).toFixed(1) + ' kg';
+}
+['editPlan','editB','editC','editD','editE','editF','editG'].forEach(id=>{
+  $(id).addEventListener('input', computeEditTotal);
+});
+
+$('editSaveBtn').addEventListener('click', async ()=>{
+  const payload = {
+    action:'update',
+    id: $('editId').value,
+    date: $('editDate').value,
+    op: $('editOp').value, shift: $('editShift').value, co: $('editCo').value,
+    plan: +$('editPlan').value||0,
+    b:+$('editB').value||0, c:+$('editC').value||0, d:+$('editD').value||0,
+    e:+$('editE').value||0, f:+$('editF').value||0, g:+$('editG').value||0
+  };
+
+  // apply locally (works for both demo & live so UI updates instantly)
+  const idx = records.findIndex(r => r.id === payload.id);
+  if(idx >= 0){
+    const total = payload.plan*WEIGHTS.plan + payload.b*WEIGHTS.b + payload.c*WEIGHTS.c
+                + payload.d*WEIGHTS.d + payload.e*WEIGHTS.e + payload.f*WEIGHTS.f + payload.g*WEIGHTS.g;
+    records[idx] = { ...records[idx], ...payload, total };
+  }
+
+  if(!API_URL){
+    closeModals(); renderHistory(); showToast('Updated (demo)'); return;
+  }
+  const btn = $('editSaveBtn'); btn.disabled = true;
+  try{
+    const res = await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) });
+    const out = await res.json();
+    if(out.ok){ closeModals(); renderHistory(); showToast('Updated ✓'); }
+    else showToast('Error: ' + (out.error||'gagal'), true);
+  }catch(err){ showToast('Network error', true); }
+  finally{ btn.disabled = false; }
+});
+
+// ================= REPORT =================
+$('btnTable').addEventListener('click', ()=> showReport('table'));
+$('btnTrend').addEventListener('click', ()=> showReport('trend'));
+
+function weekKey(d){
+  const dt = new Date(d);
+  const on = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate()));
+  const day = on.getUTCDay() || 7;
+  on.setUTCDate(on.getUTCDate() + 4 - day);
+  const yStart = new Date(Date.UTC(on.getUTCFullYear(),0,1));
+  const wk = Math.ceil((((on - yStart)/86400000)+1)/7);
+  return on.getUTCFullYear() + '-W' + String(wk).padStart(2,'0');
+}
+
+function weeklyAgg(){
+  const map = new Map();
+  records.forEach(r=>{
+    const wk = weekKey(r.date || r.timestamp);
+    if(!map.has(wk)) map.set(wk, {wk, entries:0, plan:0, totalG:0});
+    const w = map.get(wk); w.entries++; w.plan += r.plan; w.totalG += r.total;
+  });
+  return [...map.values()].sort((a,b)=> a.wk.localeCompare(b.wk));
+}
+
+function rangeRecords(){
+  if(!dateFrom || !dateTo) return records;
+  return records.filter(r=>{
+    const d = (r.date||'').slice(0,10);
+    return d >= dateFrom && d <= dateTo;
+  });
+}
+
+function showReport(mode){
+  reportMode = mode;
+  document.querySelectorAll('.action-btn').forEach(b=>b.classList.remove('on'));
+  $(mode==='table'?'btnTable':'btnTrend').classList.add('on');
+
+  if(mode==='table'){
+    const data = weeklyAgg();
+    if(!data.length){ noData(); return; }
+    $('reportResult').innerHTML = `
+      <div class="result-head"><h3>DATA TABLE — BY WEEK</h3><div class="meta">${data.length} week(s)</div></div>
+      <div class="scroll"><table class="wk">
+        <tr><th>Week</th><th>Entries</th><th>Prod Plan</th><th>Total (kg)</th><th>Avg (kg)</th></tr>
+        ${data.map(w=>`<tr>
+          <td class="wk">${w.wk}</td><td>${w.entries}</td>
+          <td>${fmt(w.plan)}</td>
+          <td class="kg">${(w.totalG/1000).toFixed(1)}</td>
+          <td>${(w.totalG/w.entries/1000).toFixed(2)}</td>
+        </tr>`).join('')}
+      </table></div>`;
+  } else {
+    // set default date range if empty: last 7 days including today
+    if(!dateFrom || !dateTo){
+      const today = new Date();
+      const past = new Date(); past.setDate(today.getDate()-6);
+      dateFrom = past.toISOString().slice(0,10);
+      dateTo = today.toISOString().slice(0,10);
+    }
+    renderTrend();
+  }
+}
+
+function noData(){
+  $('reportResult').innerHTML = `<div class="placeholder">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-5"/></svg>
+    <div>Tiada data untuk generate report.<br>Save sekurang-kurangnya 1 entry dulu.</div></div>`;
+}
+
+function renderTrend(){
+  const list = rangeRecords();
+  $('reportResult').innerHTML = `
+    <div class="result-head">
+      <h3>TREND REPORT</h3>
+      <div class="meta">${list.length} entries · ${dateFrom} → ${dateTo}</div>
+    </div>
+    <div class="range">
+      <div class="rf"><label>FROM</label><input type="date" id="fromDate" value="${dateFrom}"></div>
+      <div class="rf"><label>TO</label><input type="date" id="toDate" value="${dateTo}"></div>
+      <button class="apply" id="applyRange">APPLY</button>
+    </div>
+    ${list.length? `
+      <div class="chart-block">
+        <div class="chart-title">HOTMELT BY EVENT TYPE (kg)</div>
+        <div id="eventChart"></div>
+      </div>
+      <div class="chart-block">
+        <div class="chart-title">DAILY TOTAL (kg)</div>
+        <div id="dailyChart"></div>
+      </div>` : `<div class="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+        <div>Tiada data dalam range ni.<br>Cuba tarikh lain.</div></div>`}
+  `;
+  $('fromDate').addEventListener('change', e=>{ dateFrom=e.target.value; });
+  $('toDate').addEventListener('change', e=>{ dateTo=e.target.value; });
+  $('applyRange').addEventListener('click', renderTrend);
+  if(list.length){
+    $('eventChart').innerHTML = buildEventBarChart(list);
+    $('dailyChart').innerHTML = buildDailyLineChart(list);
+  }
+}
+
+function buildEventBarChart(list){
+  // aggregate by event type (kg)
+  const agg = { a:0, b:0, c:0, d:0, e:0, f:0, g:0 };
+  list.forEach(r=>{
+    agg.a += (r.plan||0) * WEIGHTS.plan;
+    ['b','c','d','e','f','g'].forEach(k=> agg[k] += (r[k]||0) * WEIGHTS[k]);
+  });
+  const keys = ['b','c','d','e','f','g','a']; // match Excel: PLAN at end
+  const data = keys.map(k=>({ k, label:EVENT_LABELS[k]+' ('+k+')', kg: agg[k]/1000 }));
+  const max = Math.max(...data.map(d=>d.kg), 1);
+
+  const W=740, H=240, pad={l:44,r:14,t:16,b:44};
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const step=iw/data.length, bw=Math.min(step*0.55, 44);
+  const ticks=4;
+  let grid='';
+  for(let i=0;i<=ticks;i++){
+    const y=pad.t+ih*(i/ticks);
+    const v=(max*(1-i/ticks)).toFixed(1);
+    grid += `<line class="grid" x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}"/>
+             <text class="axis" x="${pad.l-4}" y="${y+3}" text-anchor="end">${v}</text>`;
+  }
+  const bars = data.map((d,i)=>{
+    const bh=(d.kg/max)*ih;
+    const x=pad.l + i*step + (step-bw)/2;
+    const y=pad.t + ih - bh;
+    return `<rect class="bar" x="${x}" y="${y}" width="${bw}" height="${bh}" rx="3"/>
+            <text class="val" x="${x+bw/2}" y="${y-4}" text-anchor="middle">${d.kg.toFixed(1)}</text>
+            <text class="axis" x="${x+bw/2}" y="${H-pad.b+16}" text-anchor="middle">${d.k.toUpperCase()}</text>
+            <text class="axis" x="${x+bw/2}" y="${H-pad.b+30}" text-anchor="middle" style="font-size:8.5px">${EVENT_LABELS[d.k]}</text>`;
+  }).join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">${grid}${bars}</svg>`;
+}
+
+function buildDailyLineChart(list){
+  // group by date -> total kg
+  const map = new Map();
+  // seed all dates in range so gaps show as 0
+  const from = new Date(dateFrom), to = new Date(dateTo);
+  for(let d = new Date(from); d <= to; d.setDate(d.getDate()+1)){
+    map.set(d.toISOString().slice(0,10), 0);
+  }
+  list.forEach(r=>{
+    const k = (r.date||'').slice(0,10);
+    if(map.has(k)) map.set(k, map.get(k) + r.total);
+    else map.set(k, r.total);
+  });
+  const arr = [...map.entries()].sort((a,b)=> a[0].localeCompare(b[0]))
+              .map(([d,g])=>({ d, kg: g/1000 }));
+  if(!arr.length) return '<div class="placeholder">No daily data.</div>';
+  const max = Math.max(...arr.map(x=>x.kg), 1);
+  const min = 0;
+
+  const W=740, H=240, pad={l:44,r:14,t:16,b:40};
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const n = arr.length;
+  const step = n>1 ? iw/(n-1) : 0;
+  const ticks=4;
+  let grid='';
+  for(let i=0;i<=ticks;i++){
+    const y=pad.t+ih*(i/ticks);
+    const v=(max*(1-i/ticks)).toFixed(0);
+    grid += `<line class="grid" x1="${pad.l}" x2="${W-pad.r}" y1="${y}" y2="${y}"/>
+             <text class="axis" x="${pad.l-4}" y="${y+3}" text-anchor="end">${v}</text>`;
+  }
+  const pts = arr.map((d,i)=>({
+    x: pad.l + (n>1? i*step : iw/2),
+    y: pad.t + ih - (d.kg/max)*ih,
+    d: d.d, kg: d.kg
+  }));
+  const pathD = pts.map((p,i)=> (i===0?'M':'L') + p.x + ' ' + p.y).join(' ');
+  const areaD = pathD + ` L ${pts[pts.length-1].x} ${pad.t+ih} L ${pts[0].x} ${pad.t+ih} Z`;
+
+  // x-axis: show ~5 evenly-spaced labels
+  const labelEvery = Math.max(1, Math.ceil(n/5));
+  const xLabels = pts.map((p,i)=>{
+    if(i % labelEvery !== 0 && i !== n-1) return '';
+    const short = p.d.slice(5); // MM-DD
+    return `<text class="axis" x="${p.x}" y="${H-pad.b+16}" text-anchor="middle">${short}</text>`;
+  }).join('');
+  const dots = pts.map(p => `<circle class="dot" cx="${p.x}" cy="${p.y}" r="3.5"/>`).join('');
+  const vals = pts.map(p => p.kg>0 ? `<text class="val" x="${p.x}" y="${p.y-8}" text-anchor="middle" style="font-size:9px">${p.kg.toFixed(1)}</text>` : '').join('');
+
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    ${grid}
+    <path class="area" d="${areaD}"/>
+    <path class="line" d="${pathD}"/>
+    ${dots}${vals}${xLabels}
+  </svg>`;
+}
+
+// ================= HELPERS =================
+function syncTime(){
+  const now = new Date();
+  $('syncTime').textContent = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
 let toastT;
-function showToast(msg){
-  const t=$('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1600);
+function showToast(msg, err){
+  const t=$('toast'); t.textContent=msg;
+  t.classList.toggle('err', !!err); t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'), err?2600:1600);
 }
-
 function updateBp(){
   const w = window.innerWidth;
   const label = w < 700 ? 'PHONE' : (w < 1024 ? 'TABLET' : 'DESKTOP');
-  $('bp').textContent = w + 'px · ' + label;
+  $('bp').innerHTML = `${w}px · <b>${label}</b>`;
 }
 window.addEventListener('resize', updateBp);
-updateBp(); render(); renderLog();
+updateBp(); render(); syncTime();
 </script>
 </body>
 </html>
